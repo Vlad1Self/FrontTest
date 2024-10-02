@@ -89,10 +89,9 @@ export default {
         localStorage.removeItem('cart');
       } catch (error) {
         console.error("Ошибка при оформлении заказа:", error);
-        this.orderMessage = "Произошла ошибка при оформлении заказа.";
+        this.orderMessage = "Произошла ошибка при оформлении заказа";
       }
     },
-
   },
 };
 </script>

@@ -61,6 +61,7 @@ export default {
     return {
       orders: [],
       pagination: null,
+      totalOrdersAmount: 0,
     };
   },
   computed: {
@@ -79,9 +80,6 @@ export default {
       });
       return Object.values(groups);
     },
-    totalOrdersAmount() {
-      return this.groupedOrders.reduce((sum, group) => sum + this.calculateTotalPrice(group), 0);
-    },
   },
   methods: {
     async loadOrders(page = 1) {
@@ -93,16 +91,24 @@ export default {
       }
 
       try {
-        const response = await axios.get(`http://localhost:8081/api/orders/${userId}/${page}`, {
+        const response = await axios.get(`http://localhost:8081/api/orders/index/${userId}/${page}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         });
-        console.log('Ответ API:', response.data);
+        console.log('Ответ API по заказам:', response.data);
         this.orders = response.data.data;
         this.pagination = response.data.meta;
+
+        const totalSumResponse = await axios.get(`http://localhost:8081/api/orders/total-sum/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        console.log('Общая сумма всех заказов:', totalSumResponse.data.total_order_sum);
+        this.totalOrdersAmount = totalSumResponse.data.total_order_sum;
       } catch (error) {
-        console.error("Ошибка при загрузке заказов:", error);
+        console.error("Ошибка при загрузке заказов или суммы:", error);
       }
     },
 
@@ -122,6 +128,8 @@ export default {
         const response = await axios.delete(`http://localhost:8081/api/orders/delete/${orderId}`);
         console.log(`Заказ с номером ${orderId} удален:`, response.data);
         this.orders = this.orders.filter(order => order.order_uuid !== orderId);
+
+        this.loadOrders();
       } catch (error) {
         console.error(`Ошибка при удалении заказа с номером ${orderId}:`, error);
       }

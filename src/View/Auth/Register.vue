@@ -86,7 +86,6 @@ export default {
     async register() {
       console.log('Register button clicked');
       try {
-        // Шаг 1: Регистрация
         const registrationResponse = await axios.post('http://localhost:8081/api/register', {
           name: this.name,
           email: this.email,
@@ -95,17 +94,14 @@ export default {
         });
         console.log('Registration successful:', registrationResponse.data);
 
-        // Шаг 2: Автоматический вход после успешной регистрации
         const loginResponse = await axios.post('http://localhost:8081/api/login', {
           email: this.email,
           password: this.password,
         });
 
-        // Сохраняем токен и userId в localStorage
         localStorage.setItem('token', loginResponse.data.token);
-        localStorage.setItem('userId', loginResponse.data.userId); // Сохраняем userId как при логине
+        localStorage.setItem('userId', loginResponse.data.userId);
 
-        // Перенаправление на страницу с продуктами
         this.$router.push('/products');
       } catch (error) {
         console.error('Ошибка при регистрации или входе:', error);
